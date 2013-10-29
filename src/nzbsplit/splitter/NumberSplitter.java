@@ -44,11 +44,20 @@ public class NumberSplitter implements NZBSplitter {
     private final NZB nzb;
     private int numFiles;
 
+    /**
+     * Creates a new instance of NumberSplitter
+     * @param nzb NZB to split
+     * @param numFiles number of files to split the NZB into
+     */
     public NumberSplitter(NZB nzb, int numFiles) {
         this.nzb = nzb;
         this.numFiles = numFiles;
     }
 
+    /**
+     * Set the number of files to split the NZB into
+     * @param numFiles number of files to split the NZB into
+     */
     public void setNumFiles(int numFiles) {
         this.numFiles = numFiles;
     }

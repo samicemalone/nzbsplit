@@ -35,11 +35,25 @@ import nzbsplit.nzb.FileElement;
  */
 public class SizeComparator implements Comparator<FileElement> {
     
+    /**
+     * Sort file elements in ascending order of size
+     */
     public final static int ASCENDING = 0;
+    /**
+     * Sort file elements in descending order of size
+     */
     public final static int DESCENDING = 1;
     
+    /**
+     * The sort order
+     */
     private int order = ASCENDING;
     
+    /**
+     * Creates a new instance of SizeComparator with the given order
+     * @param order Sort Size Order. Either {@link SizeComparator#ASCENDING}
+     * or {@link SizeComparator#DESCENDING}
+     */
     public SizeComparator(int order) {
         this.order = order;
     }

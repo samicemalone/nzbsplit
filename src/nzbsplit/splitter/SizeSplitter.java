@@ -44,11 +44,20 @@ public class SizeSplitter implements NZBSplitter {
     private final NZB nzb;
     private long splitMaxBytes;
     
+    /**
+     * Creates a new instance of SizeSplitter
+     * @param nzb NZB to split
+     * @param splitMaxBytes maximum number of bytes that the NZB should be split into
+     */
     public SizeSplitter(NZB nzb, long splitMaxBytes) {
         this.nzb = nzb;
         this.splitMaxBytes = splitMaxBytes;
     }
 
+    /**
+     * Set the maximum number of bytes that the NZB should be split into
+     * @param splitMaxBytes maximum size in bytes
+     */
     public void setSplitMaxBytes(long splitMaxBytes) {
         this.splitMaxBytes = splitMaxBytes;
     }
