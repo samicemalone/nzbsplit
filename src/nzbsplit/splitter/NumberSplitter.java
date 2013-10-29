@@ -24,14 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package nzbsplit;
+package nzbsplit.splitter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import nzbsplit.SizeComparator;
 import nzbsplit.exception.SplitException;
 import nzbsplit.nzb.FileElement;
 import nzbsplit.nzb.NZB;
@@ -40,76 +39,26 @@ import nzbsplit.nzb.NZB;
  *
  * @author Sam Malone
  */
-public class NZBSplitter {
+public class NumberSplitter implements NZBSplitter {
     
     private final NZB nzb;
-    
-    /**
-     * Creates a new instance of NZBSplitter
-     * @param nzb NZB to split
-     */
-    public NZBSplitter(NZB nzb) {
+    private int numFiles;
+
+    public NumberSplitter(NZB nzb, int numFiles) {
         this.nzb = nzb;
+        this.numFiles = numFiles;
     }
-    
-    /**
-     * Split the NZB file into smaller NZB parts where each part\'s size is no larger than splitMaxBytes
-     * @param splitMaxBytes Maximum NZB split part file size
-     * @return List of split NZB parts
-     * @throws SplitException if the NZB is smaller is the maximum split size or if any individual
-     * file is larger than the maximum split size
-     */
-    public List<NZB> splitBySize(long splitMaxBytes) throws SplitException {
-        if(nzb.getTotalFileSize() < splitMaxBytes) {
-            throw new SplitException("The size of the NZB is smaller than the maximum split size.");
-        }
-        final List<NZB> list = new ArrayList<>();
-        final Set<FileElement> files = new TreeSet<>(new SizeComparator(SizeComparator.DESCENDING));
-        files.addAll(nzb.getFiles());
-        list.add(new NZB(nzb.getMetadata()));
-        for(FileElement file : files) {
-            if(file.getFileSize() > splitMaxBytes) {
-                throw new SplitException(String.format("The file %s is larger than the maximum split size", file.getSubject()));
-            }
-            int firstFitIndex = getFirstFitIndex(list, file.getFileSize(), splitMaxBytes);
-            if(firstFitIndex < 0) {
-                list.add(new NZB(nzb.getMetadata()));
-                firstFitIndex = list.size() - 1;
-            }
-            list.get(firstFitIndex).addFile(file);
-        }
-        return list;
-    }
-    
-    /**
-     * Gets the index in list that should be used to store the file with the given size.
-     * This implementation uses the first fit bin-packing algorithm to provide as many
-     * NZB's as necessary whilst keeping a constant max size per file 
-     * @param list List of current NZB bins
-     * @param curFileSize the file size (in bytes) of the file to store
-     * @param capacity The capacity of each bin (nzb) i.e. maximum byte size. This capacity
-     * IS strict. Files will not overflow the size maximum NZB size. Additional NZB's will
-     * be created instead
-     * @return index or -1 if there is not enough space in any NZB
-     */
-    private int getFirstFitIndex(List<NZB> list, long curFileSize, long capacity) {
-        int index = -1;
-        for(int i = 0; i < list.size(); i++) {
-            if(list.get(i).getTotalFileSize() + curFileSize > capacity) {
-                continue;
-            }
-            return i;
-        }
-        return index;
+
+    public void setNumFiles(int numFiles) {
+        this.numFiles = numFiles;
     }
     
     /**
      * Initialises an array of NZB objects of size numFiles, and fills each array index
      * with a new instance of NZB.
-     * @param numFiles number of NZB objects to initialise
      * @return Array of NZB objects of size numFiles with each element initialised
      */
-    private NZB[] initEmptyNZBList(int numFiles) {
+    private NZB[] initEmptyNZBList() {
         final NZB[] list = new NZB[numFiles];
         for(int i = 0; i < list.length; i++) {
             list[i] = new NZB(nzb.getMetadata());
@@ -166,13 +115,14 @@ public class NZBSplitter {
     
     /**
      * Split the NZB file into a number of NZB parts given by numFiles
-     * @param numFiles number of NZB's to split the original NZB into
      * @return List of split NZB parts of size numFiles
+     * @throws SplitException will not be thrown in this implementation
      */
-    public List<NZB> splitByNumber(int numFiles) {
+    @Override
+    public List<NZB> split() throws SplitException {
         long maxSplitBytes = Math.max(nzb.getTotalFileSize() / numFiles, nzb.getLargestFileSize());
         System.out.println("MAX PER   : " + maxSplitBytes);
-        final NZB[] list = initEmptyNZBList(numFiles);
+        final NZB[] list = initEmptyNZBList();
         List<FileElement> sortedFiles = new ArrayList<>(nzb.getFiles());
         Collections.sort(sortedFiles, new SizeComparator(SizeComparator.DESCENDING));
         for(FileElement file : sortedFiles) {

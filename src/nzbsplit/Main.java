@@ -26,6 +26,7 @@
 
 package nzbsplit;
 
+import nzbsplit.splitter.NZBSplitter;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -34,6 +35,8 @@ import nzbsplit.exception.SplitException;
 import nzbsplit.nzb.FileElement;
 import nzbsplit.nzb.NZB;
 import nzbsplit.parser.NZBParser;
+import nzbsplit.splitter.NumberSplitter;
+import nzbsplit.splitter.SizeSplitter;
 
 /**
  *
@@ -55,9 +58,9 @@ public class Main {
             CommandLine.validate(cmd);
             NZBParser parser = new NZBParser();
             NZB nzb = parser.parse(Paths.get(cmd.getNZBFile()));
-            NZBSplitter splitter = new NZBSplitter(nzb);
-            List<NZB> splitNZBs = cmd.isSplitSizeSet() ? splitter.splitBySize(cmd.getMaxSplitSize())
-                                                       : splitter.splitByNumber(cmd.getSplitNumber());
+            NZBSplitter splitter = cmd.isSplitSizeSet() ? new SizeSplitter(nzb, cmd.getMaxSplitSize())
+                                                        : new NumberSplitter(nzb, cmd.getSplitNumber());
+            List<NZB> splitNZBs = splitter.split();
             for(NZB curNZB : splitNZBs) {
                 for(FileElement file : curNZB.getFiles()) {
                     file.sortSegments();
