@@ -34,7 +34,21 @@ import nzbsplit.exception.ParseException;
  */
 public class FileSize {
     
-    private final static String[] UNITS = { "K", "M", "G", "T" };
+    private final static String[] UNITS = { "K", "M", "G", "T", "P", "E" };
+    private final static int UNIT = 1024;
+    
+    /**
+     * Format the given byte count into a human readable String e.g. 1343686458 = "1.25 GB"
+     * @param bytes file size in bytes
+     * @return Formatted file size to two decimal places
+     */
+    public static String format(long bytes) {
+        if(bytes < UNIT) {
+            return String.format("%sB", bytes);
+        }
+        int exp = (int) (Math.log(bytes) / Math.log(UNIT));
+        return String.format("%.2f %sB", bytes / Math.pow(UNIT, exp), UNITS[exp-1]);
+    }
     
     /**
      * Get the amount of bytes that is represented by the size and unit in fileSize
@@ -66,7 +80,7 @@ public class FileSize {
     private static long getUnitBytes(String unit) throws ParseException {
         for(int i = 0; i < UNITS.length; i++) {
             if(unit.equals(UNITS[i]) || unit.equals(UNITS[i].concat("B"))) {
-                return (long) Math.pow(1024, i+1);
+                return (long) Math.pow(UNIT, i+1);
             }
         }
         throw new ParseException("Unable to parse the unit " + unit);

@@ -47,7 +47,13 @@ public class NZBWriter {
     private final static String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     private final static String XML_DOCTYPE = "<!DOCTYPE nzb PUBLIC \"-//newzBin//DTD NZB 1.1//EN\" \"http://www.newzbin.com/DTD/nzb/nzb-1.1.dtd\">\n";
     private final static String START_ROOT = "<nzb xmlns=\"http://www.newzbin.com/DTD/2003/nzb\">\n";
-    private final static String END_ROOT = "</nzb>";    
+    private final static String END_ROOT = "</nzb>"; 
+    
+    private boolean log = false;
+    
+    public NZBWriter(boolean log) {
+        this.log = log;
+    }
     
     /**
      * Write the given NZB object the the destination File given
@@ -55,7 +61,10 @@ public class NZBWriter {
      * @param dest NZB destination path
      * @throws IOException if unable to write to the file
      */
-    public static void write(NZB nzb, File dest) throws IOException {
+    public void write(NZB nzb, File dest) throws IOException {
+        if(log) {
+            System.out.println(String.format("Writing \"%s\" containing %d files totalling %s", dest.getName(), nzb.getFiles().size(), FileSize.format(nzb.getTotalFileSize())));
+        }
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dest), "UTF-8"))) {
             writer.write(XML_DECLARATION);
             writer.write(XML_DOCTYPE);

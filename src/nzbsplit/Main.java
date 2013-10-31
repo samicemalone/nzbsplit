@@ -26,8 +26,8 @@
 
 package nzbsplit;
 
-import nzbsplit.splitter.NZBSplitter;
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import nzbsplit.exception.ParseException;
@@ -35,6 +35,7 @@ import nzbsplit.exception.SplitException;
 import nzbsplit.nzb.FileElement;
 import nzbsplit.nzb.NZB;
 import nzbsplit.parser.NZBParser;
+import nzbsplit.splitter.NZBSplitter;
 import nzbsplit.splitter.NumberSplitter;
 import nzbsplit.splitter.SizeSplitter;
 
@@ -44,6 +45,8 @@ import nzbsplit.splitter.SizeSplitter;
  */
 public class Main {
 
+    private final static String NZB_EXTENSION = ".nzb";
+    
     /**
      * @param args the command line arguments
      */
@@ -66,16 +69,13 @@ public class Main {
                     file.sortSegments();
                 }
             }
-            long size = 0;
-            for(NZB nzbPart : splitNZBs) {
-                System.out.print("SIZE: " + nzbPart.getTotalFileSize());
-                System.out.println("   COUNT: " + nzbPart.getFiles().size());
-                size += nzbPart.getTotalFileSize();
+            FileNamer namer = new FileNamer(new File(cmd.getNZBFile()).getName(), NZB_EXTENSION);
+            File destDir = new File(".");
+            NZBWriter nzbWriter = new NZBWriter(cmd.isVerboseSet());
+            for(int i = 0; i < splitNZBs.size(); i++) {
+                nzbWriter.write(splitNZBs.get(i), namer.getPartFileName(destDir, i));
             }
-            System.out.println("NZB's    : " + splitNZBs.size());
-            System.out.println("PARTS SUM: " + size);
-            System.out.println("SHOULD BE: " + nzb.getTotalFileSize());
-        } catch (SplitException | ParseException | FileNotFoundException ex) {
+        } catch (IOException | SplitException | ParseException ex) {
             System.err.println("ERROR: " + ex.getMessage());
         }
     }
@@ -84,11 +84,12 @@ public class Main {
      * Print the help message
      */
     public static void printHelp() {
-        System.out.println("Usage:    nzbsplit [-s <MAX_SIZE>|-n <NUM_SPLIT>] [-h] <NZB_FILE>");
+        System.out.println("Usage:    nzbsplit [-s <MAX_SIZE>|-n <NUM_SPLIT>] [-hv] <NZB_FILE>");
         System.out.println();
         System.out.println("  -h, --help                       Displays this message then exits");
         System.out.println("  -n, --number <NUM_SPLIT>         Split <NZB_FILE> into at most <NUM_SPLIT> NZB parts");
         System.out.println("  -s, --max-size-split <MAX_SIZE>  Split <NZB_FILE> into at most <MAX_SIZE> NZB parts");
+        System.out.println("  -v, --verbose                    Prints information about the split NZB files");
     }
     
 }

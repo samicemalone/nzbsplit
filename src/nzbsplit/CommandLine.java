@@ -41,6 +41,7 @@ public class CommandLine {
     private int splitNumber = 0;
     private long splitSize = 0;
     private boolean isHelpSet = false;
+    private boolean isVerboseSet = false;
     private String nzbFile;
     
     private CommandLine() {
@@ -103,7 +104,7 @@ public class CommandLine {
      * @param cmd CommandLine to store options and arguments
      * @param args Program arguments
      * @param curIndex index of the current option to parse
-     * @return true if the next program argument (args[i+1]) is an argument value, false otherwise
+     * @return true if the next program argument (args[currentIndex+1]) is an argument value, false otherwise
      * @throws ParseException if unable to parse max split size
      */
     private static boolean parseOption(CommandLine cmd, String[] args, int curIndex) throws ParseException {
@@ -116,6 +117,10 @@ public class CommandLine {
             case "--max-split-size":
                 cmd.splitSize = FileSize.parseBytes(args[curIndex+1]);
                 return true;
+            case "-v":
+            case "--verbose":
+                cmd.isVerboseSet = true;
+                break;
             default:
                 cmd.nzbFile = args[curIndex];
         }
@@ -128,6 +133,14 @@ public class CommandLine {
      */
     public boolean isHelpSet() {
         return isHelpSet;
+    }
+    
+    /**
+     * Check if the verbose flag is set
+     * @return true if the verbose flag is set, false otherwise
+     */
+    public boolean isVerboseSet() {
+        return isVerboseSet;
     }
     
     /**

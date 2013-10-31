@@ -130,7 +130,6 @@ public class NumberSplitter implements NZBSplitter {
     @Override
     public List<NZB> split() throws SplitException {
         long maxSplitBytes = Math.max(nzb.getTotalFileSize() / numFiles, nzb.getLargestFileSize());
-        System.out.println("MAX PER   : " + maxSplitBytes);
         final NZB[] list = initEmptyNZBList();
         List<FileElement> sortedFiles = new ArrayList<>(nzb.getFiles());
         Collections.sort(sortedFiles, new SizeComparator(SizeComparator.DESCENDING));
